@@ -1,0 +1,32 @@
+# Rust often needs a bit of an extra main task stack size compared to C (the default is 3K)
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8000
+
+# Use this to set FreeRTOS kernel tick frequency to 1000 Hz (100 Hz by default).
+# This allows to use 1 ms granularity for thread sleeps (10 ms by default).
+#CONFIG_FREERTOS_HZ=1000
+
+# Workaround for https://github.com/espressif/esp-idf/issues/7631
+#CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=n
+#CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_FULL=n
+
+#####################
+
+# Enable Flash Encryption
+# CONFIG_SECURE_FLASH_ENC_ENABLED=y
+# CONFIG_SECURE_FLASH_ENCRYPTION_MODE_RELEASE=y
+# CONFIG_SECURE_BOOT_ALLOW_ROM_BASIC=n
+# CONFIG_SECURE_BOOT_ALLOW_JTAG=n
+# CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_ENC=n
+# CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_DEC=n
+# CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_CACHE=n
+# CONFIG_SECURE_FLASH_REQUIRE_ALREADY_ENABLED=n
+
+# Enable Secure Boot V2
+# CONFIG_SECURE_BOOT=y
+# CONFIG_SECURE_BOOT_V2_ENABLED=y
+# CONFIG_SECURE_BOOT_SIGNING_KEY="secure_boot_signing_key.pem"
+# CONFIG_SECURE_BOOT_ENABLE_AGGRESSIVE_KEY_REVOKE=y
+# CONFIG_SECURE_BOOT_FLASH_ENC_KEYS_BURN_TOGETHER=y
+
+# Disable UART ROM download mode to prevent unauthorized flash access
+# CONFIG_ESP_CONSOLE_UART_ROM_DOWNLOAD=n
