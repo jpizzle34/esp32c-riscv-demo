@@ -17,11 +17,3 @@ fn main() {
     // Required for ESP-IDF
     embuild::espidf::sysenv::output();
 }
-
-// fn encode_bytes(s: &str) -> String {
-//     s.as_bytes()
-//         .iter()
-//         .map(|b| b.to_string())
-//         .collect::<Vec<_>>()
-//         .join(",")
-// }

@@ -9,6 +9,7 @@ use heapless::String;
 const WIFI_NAMESPACE: &str = "wifi";
 const SSID_KEY: &str = "ssid";
 const PASS_KEY: &str = "pass";
+const MAX_RETRIES: u32 = 5;
 
 // These are populated at build time from .env
 const WIFI_SSID: &str = env!("WIFI_SSID");
@@ -95,6 +96,10 @@ pub async fn connect(
 
     let mut wifi = EspWifi::new(modem, sysloop, None)?;
 
+    // Reset WiFi to clear any stale state
+    wifi.stop()?;
+    Timer::after(Duration::from_millis(1000)).await;
+
     wifi.set_configuration(&Configuration::Client(ClientConfiguration {
         ssid,
         password,
@@ -103,14 +108,38 @@ pub async fn connect(
     }))?;
 
     wifi.start()?;
-    wifi.connect()?;
-    // wifi.is_up()?;
 
-    while !wifi.is_up()? {
-        log::info!("Waiting for connection...");
-        Timer::after(Duration::from_millis(1000)).await;
+    // Add a small delay before connecting
+    Timer::after(Duration::from_millis(500)).await;
+
+    wifi.connect()?;
+
+    log::info!("Waiting for connection...");
+
+    // Retry connection with timeout
+    let mut retries = 0;
+    while !wifi.is_connected()? && retries < MAX_RETRIES {
+        log::info!("Connection attempt {}/{}", retries + 1, MAX_RETRIES);
+        Timer::after(Duration::from_millis(3000)).await;
+        retries += 1;
+
+        // If still not connected after a few attempts, try reconnecting
+        if retries >= 2 && !wifi.is_connected()? {
+            log::info!("Retrying connection...");
+            wifi.disconnect()?;
+            Timer::after(Duration::from_millis(1000)).await;
+            wifi.connect()?;
+        }
     }
 
-    log::info!("WiFi connected!");
+    if wifi.is_connected()? {
+        log::info!("WiFi connected successfully!");
+    } else {
+        return Err(anyhow::anyhow!(
+            "Failed to connect to WiFi after {} attempts",
+            MAX_RETRIES
+        ));
+    }
+
     Ok(wifi)
 }
